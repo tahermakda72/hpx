@@ -142,9 +142,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: shepherd
     struct shepherd_thread_id
-      : hpx::util::logging::formatter::class_<
-            shepherd_thread_id,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<shepherd_thread_id>
     {
         shepherd_thread_id()
         {}
@@ -172,9 +170,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: locality prefix
     struct locality_prefix
-      : hpx::util::logging::formatter::class_<
-            locality_prefix,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<locality_prefix>
     {
         locality_prefix()
         {}
@@ -199,9 +195,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: HPX thread id
     struct thread_id
-      : hpx::util::logging::formatter::class_<
-            thread_id,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<thread_id>
     {
         void operator()(param str) const
         {
@@ -227,9 +221,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: HPX thread phase
     struct thread_phase
-      : hpx::util::logging::formatter::class_<
-            thread_phase,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<thread_phase>
     {
         void operator()(param str) const
         {
@@ -254,9 +246,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: locality prefix of parent thread
     struct parent_thread_locality
-      : hpx::util::logging::formatter::class_<
-            parent_thread_locality,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<parent_thread_locality>
     {
         void operator()(param str) const
         {
@@ -278,9 +268,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: HPX parent thread id
     struct parent_thread_id
-      : hpx::util::logging::formatter::class_<
-            parent_thread_id,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<parent_thread_id>
     {
         void operator()(param str) const
         {
@@ -303,9 +291,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: HPX parent thread phase
     struct parent_thread_phase
-      : hpx::util::logging::formatter::class_<
-            parent_thread_phase,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<parent_thread_phase>
     {
         void operator()(param str) const
         {
@@ -327,9 +313,7 @@ namespace hpx { namespace util
     ///////////////////////////////////////////////////////////////////////////
     // custom formatter: HPX component id of current thread
     struct thread_component_id
-      : hpx::util::logging::formatter::class_<
-            thread_component_id,
-            hpx::util::logging::formatter::implement_op_equal::no_context>
+      : hpx::util::logging::formatter::class_<thread_component_id>
     {
         void operator()(param str) const
         {

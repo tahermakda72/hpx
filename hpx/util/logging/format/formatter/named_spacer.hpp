@@ -23,23 +23,36 @@
 #include <hpx/util/logging/format/formatter/convert_format.hpp>    // do_convert_format
 
 #include <cstddef>
-#include <map>
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace hpx { namespace util { namespace logging { namespace formatter {
 
 namespace detail {
 
-    template<class convert, class format_base>
+    inline std::string unescape(std::string escaped) {
+        typedef std::size_t size_type;
+        size_type idx_start = 0;
+        while ( true) {
+            size_type found = escaped.find( "%%", idx_start );
+            if ( found != std::string::npos) {
+                escaped.erase( escaped.begin() +
+                    static_cast<std::ptrdiff_t>(found));
+                ++idx_start;
+            }
+            else
+                break;
+        }
+        return escaped;
+    }
+
+    template<class convert>
     struct named_spacer_context {
-        typedef typename use_default<format_base, base<> >
-            ::type  format_base_type;
-        typedef typename use_default<convert,
-            hpx::util::logging::formatter::do_convert_format::prepend>
-            ::type convert_type;
+        typedef base format_base_type;
+        typedef convert convert_type;
         typedef ::hpx::util::logging::array::shared_ptr_holder<format_base_type >
             array;
 
@@ -53,7 +66,7 @@ namespace detail {
 
         struct write_info {
             array formatters;
-            typedef std::map<std::string, format_base_type* > coll;
+            typedef std::unordered_map<std::string, format_base_type* > coll;
             coll name_to_formatter;
 
             std::string format_string;
@@ -120,22 +133,6 @@ namespace detail {
                 if ( b->fmt)
                     (*(b->fmt))(msg);
             }
-        }
-
-        static std::string unescape(std::string escaped) {
-            typedef std::size_t size_type;
-            size_type idx_start = 0;
-            while ( true) {
-                size_type found = escaped.find( "%%", idx_start );
-                if ( found != std::string::npos) {
-                    escaped.erase( escaped.begin() +
-                        static_cast<std::ptrdiff_t>(found));
-                    ++idx_start;
-                }
-                else
-                    break;
-            }
-            return escaped;
         }
 
         // recomputes the write steps - note taht this takes place after each operation
@@ -252,13 +249,11 @@ You could have an output like this:
 @endcode
 
 */
-template< class convert = default_, class format_base = default_ >
-        struct named_spacer_t : is_generic,
-            non_const_context< detail::named_spacer_context<convert,
-            format_base> > {
+template<class convert>
+struct named_spacer_t : is_generic,
+    non_const_context< detail::named_spacer_context<convert> > {
 
-    typedef non_const_context< detail::named_spacer_context<convert,
-        format_base> > context_base;
+    typedef non_const_context< detail::named_spacer_context<convert> > context_base;
 
     named_spacer_t(const std::string & str = std::string() ) {
         if ( !str.empty() )
@@ -293,12 +288,6 @@ template< class convert = default_, class format_base = default_ >
     }
 
 };
-
-/** @brief named_spacer_t with default values. See named_spacer_t
-
-@copydoc named_spacer_t
-*/
-typedef named_spacer_t<> named_spacer;
 
 }}}}
 
