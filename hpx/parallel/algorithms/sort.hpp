@@ -73,8 +73,8 @@ namespace hpx { namespace parallel { inline namespace v1
         /// \remarks
         //------------------------------------------------------------------------
         template <typename ExPolicy, typename RandomIt, typename Compare>
-        hpx::future<RandomIt> sort_thread(ExPolicy& policy,
-            RandomIt first, RandomIt last, Compare comp)
+        hpx::future<RandomIt> sort_thread(
+            ExPolicy policy, RandomIt first, RandomIt last, Compare comp)
         {
             //------------------------- begin ----------------------
             std::ptrdiff_t N = last - first;
@@ -139,17 +139,13 @@ namespace hpx { namespace parallel { inline namespace v1
             std::iter_swap(first, c_last);
 
             // spawn tasks for each sub section
-            hpx::future<RandomIt> left =
-                execution::async_execute(
-                    policy.executor(),
-                        &sort_thread<ExPolicy, RandomIt, Compare>,
-                        std::ref(policy), first, c_last, comp);
+            hpx::future<RandomIt> left = execution::async_execute(
+                policy.executor(), &sort_thread<ExPolicy, RandomIt, Compare>,
+                policy, first, c_last, comp);
 
-            hpx::future<RandomIt> right =
-                execution::async_execute(
-                    policy.executor(),
-                        &sort_thread<ExPolicy, RandomIt, Compare>,
-                        std::ref(policy), c_first, last, comp);
+            hpx::future<RandomIt> right = execution::async_execute(
+                policy.executor(), &sort_thread<ExPolicy, RandomIt, Compare>,
+                policy, c_first, last, comp);
 
             return hpx::dataflow(
                 [last](hpx::future<RandomIt> && left,
@@ -198,8 +194,9 @@ namespace hpx { namespace parallel { inline namespace v1
                 return hpx::make_ready_future(last);
 
             return execution::async_execute(policy.executor(),
-                    &sort_thread<ExPolicy, RandomIt, Compare>,
-                    std::ref(policy), first, last, comp);
+                &sort_thread<typename std::decay<ExPolicy>::type, RandomIt,
+                    Compare>,
+                std::forward<ExPolicy>(policy), first, last, comp);
         }
 
         ///////////////////////////////////////////////////////////////////////
