@@ -322,10 +322,8 @@ namespace hpx { namespace util { namespace detail
         }
     }
 
-    inline void format_to(
-        std::ostream& os,
-        boost::string_ref format_str,
-        format_arg const* args, std::size_t /*count*/)
+    inline void format_to(std::ostream& os, boost::string_ref format_str,
+        format_arg const* args, std::size_t count)
     {
         std::size_t index = 0;
         while (!format_str.empty())
@@ -345,6 +343,7 @@ namespace hpx { namespace util { namespace detail
 
                     std::size_t const id =
                         field.arg_id ? field.arg_id - 1 : index;
+                    HPX_ASSERT(id < count);
                     args[id](os, field.spec);
                     ++index;
                 }
