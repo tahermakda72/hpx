@@ -434,11 +434,13 @@ void test_partition()
             return false;
         }, rand_base);
 
+#if !defined(HPX_HAVE_SANITIZERS)
     ////////// Many test cases for meticulous tests.
     test_partition_heavy(execution::par, IteratorTag(), int(),
         [rand_base](const int n) -> bool {
             return n < rand_base;
         }, rand_base);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
