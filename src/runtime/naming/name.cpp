@@ -572,13 +572,28 @@ namespace hpx { namespace naming
         /// support functions for std::intrusive_ptr
         void intrusive_ptr_add_ref(id_type_impl* p)
         {
-            ++p->count_;
+            auto v = ++p->count_;
+            // count_ is set to -1 if the deleter is called,
+            // so incrementing this test will identify an
+            // increment on a count to a deleted object
+            // regardless of whether it was initialized to
+            // 0 or 1.
+            HPX_ASSERT(v > 0);
         }
 
         void intrusive_ptr_release(id_type_impl* p)
         {
-            if (0 == --p->count_)
-                id_type_impl::get_deleter(p->get_management_type())(p);
+            while(true)
+            {
+                long v = p->count_;
+                long nv = v == 1 ? -1 : v-1;
+                if(p->count_.compare_exchange_strong(v,nv))
+                {
+                    if(v == 1)
+                        id_type_impl::get_deleter(p->get_management_type())(p);
+                    break;
+                }
+            }
         }
     }   // detail
 

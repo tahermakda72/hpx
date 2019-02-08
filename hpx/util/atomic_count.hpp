@@ -56,6 +56,11 @@ namespace hpx { namespace util
             return value_.load(std::memory_order_acquire);
         }
 
+        bool compare_exchange_strong(long& ov,const long& nv)
+        {
+             return value_.compare_exchange_strong(ov,nv);
+        }
+
     private:
         std::atomic<long> value_;
     };
