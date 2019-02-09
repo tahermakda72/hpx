@@ -154,8 +154,14 @@ namespace hpx { namespace parallel { namespace execution
             results.resize(size);
 
             lcos::local::latch l(size);
-            spawn(results, l, 0, size, num_tasks, f,
-                hpx::util::begin(shape), ts...);
+            if (hpx::detail::has_async_policy(policy_))
+            {
+                spawn_hierarchical(results, l, 0, size, num_tasks, f,
+                    hpx::util::begin(shape), ts...);
+            } else {
+                spawn_sequential(results, l, 0, size, f,
+                    hpx::util::begin(shape), ts...);
+            }
             l.wait();
 
             return results;
@@ -165,7 +171,23 @@ namespace hpx { namespace parallel { namespace execution
     protected:
         /// \cond NOINTERNAL
         template <typename Result, typename F, typename Iter, typename ... Ts>
-        void spawn(std::vector<hpx::future<Result> >& results,
+        void spawn_sequential(std::vector<hpx::future<Result> >& results,
+            lcos::local::latch& l, std::size_t base, std::size_t size,
+            F const& func, Iter it, Ts const&... ts) const
+        {
+            // spawn tasks sequentially
+            HPX_ASSERT(base + size <= results.size());
+
+            for (std::size_t i = 0; i != size; ++i, ++it)
+            {
+                results[base + i] = async_execute(func, *it, ts...);
+            }
+
+            l.count_down(size);
+        }
+
+        template <typename Result, typename F, typename Iter, typename ... Ts>
+        void spawn_hierarchical(std::vector<hpx::future<Result> >& results,
             lcos::local::latch& l, std::size_t base, std::size_t size,
             std::size_t num_tasks, F const& func, Iter it, Ts const&... ts) const
         {
@@ -179,7 +201,7 @@ namespace hpx { namespace parallel { namespace execution
                         std::vector<hpx::future<Result> >&,
                         lcos::local::latch& l, std::size_t, std::size_t,
                         std::size_t, F const&, Iter, Ts const&...
-                    ) const = &parallel_policy_executor::spawn;
+                    ) const = &parallel_policy_executor::spawn_hierarchical;
 
                 while (size > chunk_size)
                 {
@@ -194,14 +216,7 @@ namespace hpx { namespace parallel { namespace execution
             }
 
             // spawn remaining tasks sequentially
-            HPX_ASSERT(base + size <= results.size());
-
-            for (std::size_t i = 0; i != size; ++i, ++it)
-            {
-                results[base + i] = async_execute(func, *it, ts...);
-            }
-
-            l.count_down(size);
+            spawn_sequential(results, l, base, size, func, it, ts...);
         }
         /// \endcond
 
