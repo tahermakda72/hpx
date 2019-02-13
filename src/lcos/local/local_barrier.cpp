@@ -67,5 +67,9 @@ namespace hpx { namespace lcos { namespace local
             }
         }
     }
+    void barrier::increase(){
+        std::unique_lock<mutex_type> l(mtx_);
+        number_of_threads_+=1;
+    }
 
 }}}
