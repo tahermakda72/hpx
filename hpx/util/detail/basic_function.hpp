@@ -88,7 +88,7 @@ namespace hpx { namespace util { namespace detail
                     // reuse object storage
                     vtable::_destruct<target_type>(object);
                     object = vtable::construct<target_type>(
-                        object, -1, std::forward<F>(f));
+                        object, std::size_t(-1), std::forward<F>(f));
                 } else {
                     reset();
 
